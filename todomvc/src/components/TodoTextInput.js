@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import classnames from 'classnames'
 
 export default class TodoTextInput extends Component {
+
   static propTypes = {
     onSave: PropTypes.func.isRequired,
     text: PropTypes.string,
