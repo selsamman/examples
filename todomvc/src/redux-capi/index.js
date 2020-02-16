@@ -23,15 +23,22 @@ export const createAPI = ({selectors, thunks, redactions}) => {
     if (!componentInstance) {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       let contextContainer = useRef(null);
-      context = contextContainer.current || Object.create(apiContext);
-      context.current = context;
+      if (contextContainer.current)
+        context = contextContainer.current;
+      else {
+        context.current = context = Object.create(apiContext);
+        bindFunctions(context);
+      }
     } else {
-      context = componentInstance.__capi_instance__ || Object.create(apiContext);
-      context = componentInstance.__capi_instance__ = context;
+      if (componentInstance.__capi_instance__)
+        context = componentInstance.__capi_instance__;
+      else {
+        componentInstance.__capi_instance__ = context = Object.create(apiContext);
+        bindFunctions(context);
+      }
     }
     context.__selector_used__ = {};
     context.__component__ = componentInstance;
-    bindFunctions(context);
     return context;
   }
 
@@ -192,9 +199,9 @@ export const reducer = (rootState, action) => {
       } else if (reducer.insert) {
         let position = newState.length;
         if (reducer.after)
-          position = reducer.after.call(null, mapState(rootState), newState, context);
+          position = reducer.after.call(null, mapState(rootState), newState, context) + 1;
         if (reducer.before)
-          position = Math.max(reducer.before.call(null, mapState(rootState), newState, context) - 1, 0);
+          position = Math.max(reducer.before.call(null, mapState(rootState), newState, context), 0);
         var insertResult = reducer.insert.call(null, mapState(rootState), newState, context);
         var shallowCopy = newState.slice();
         shallowCopy.splice(position, 0, insertResult);
