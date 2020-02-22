@@ -1,6 +1,7 @@
 import { createAPI, reducer } from './index'
 import { createStore, applyMiddleware } from 'redux';
 import ReduxThunk from 'redux-thunk';
+let matrixCalled = 0;
 const matrixAPISpec2D = {
   redactions: {
     setValue: (row, col, value) => ({
@@ -141,7 +142,14 @@ const matrixAPISpec = {
     }),
   },
   selectors: {
-    matrix: (api,state) => state.matrix
+    matrixNonMemo: ({matrix}) => matrix,
+    matrix: [
+      (select, {matrixNonMemo}) => select(matrixNonMemo),
+      (matrix) => {
+        ++matrixCalled;
+        return matrix;
+      }
+    ]
   },
   thunks: {
     set: ({matrix, addRow, addCol, setValue}) => (row, col, value) => {
@@ -204,6 +212,7 @@ describe('CAPI', () => {
     it('can insert', () => {
       const api = getAPI(true);
       const component = {setState(state) {setState = state}};
+      let selectorCalled;
       {
         let {insertRowBefore, insertColBefore, setValue} = api({},component);
         insertRowBefore(0);
@@ -221,15 +230,21 @@ describe('CAPI', () => {
         expect(matrix.rows[0].cols[1]).toBe("0-1");
         expect(matrix.rows.length).toBe(1);
         expect(matrix.rows[0].cols.length).toBe(2);
-
         insertRowAfter(0)
         insertColBefore(1, 0);
+        selectorCalled = matrixCalled;
         setValue(1, 0, "1-0");
       } {
         let {matrix} = api({},component);
         expect(matrix.rows[1].cols[0]).toBe("1-0");
         expect(matrix.rows.length).toBe(2);
         expect(matrix.rows[1].cols.length).toBe(1);
+        expect(selectorCalled + 1).toBe(matrixCalled);
+        selectorCalled = matrixCalled;
+      } {
+        let {matrix} = api({},component);
+        expect(matrix.rows[1].cols[0]).toBe("1-0");
+        expect(selectorCalled).toBe(matrixCalled);
       }
     })
   })

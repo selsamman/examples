@@ -1,10 +1,11 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import TodoTextInput from './TodoTextInput'
 import { todoAPI } from '../api'
 
 const Header = () => {
-  const {addTodo} = todoAPI();
+  let api = todoAPI();
+  let {addTodo} = api;
+  console.log("render header");
   return (
     <header className="header">
       <h1>todos</h1>
@@ -20,9 +21,4 @@ const Header = () => {
     </header>
   )
 }
-
-Header.propTypes = {
-  addTodo: PropTypes.func.isRequired
-}
-
 export default Header

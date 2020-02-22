@@ -1,8 +1,8 @@
 import React from 'react'
 import { createRenderer } from 'react-test-renderer/shallow'
 import App from './App'
-import Header from '../containers/Header'
-import MainSection from '../containers/MainSection'
+import Header from '../components/Header'
+import MainSection from '../components/MainSection'
 
 const setup = _propOverrides => {
   const renderer = createRenderer()

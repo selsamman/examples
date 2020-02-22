@@ -1,6 +1,6 @@
 import React from 'react'
-import Header from '../containers/Header'
-import MainSection from '../containers/MainSection'
+import Header from '../components/Header'
+import MainSection from '../components/MainSection'
 
 export default () => (
   <div>

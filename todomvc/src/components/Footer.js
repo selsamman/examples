@@ -1,6 +1,5 @@
 import React from 'react'
-import PropTypes from 'prop-types'
-import FilterLink from '../containers/FilterLink'
+import Link from '../components/Link'
 import { SHOW_ALL, SHOW_COMPLETED, SHOW_ACTIVE } from '../constants/TodoFilters'
 import { todoAPI } from '../api'
 
@@ -11,7 +10,7 @@ const FILTER_TITLES = {
 }
 
 const Footer = () => {
-  const { activeCount, completedCount, onClearCompleted } = todoAPI();
+  const { activeCount, completedCount, clearCompleted, visibilityFilter } = todoAPI();
   const itemWord = activeCount === 1 ? 'item' : 'items'
   return (
     <footer className="footer">
@@ -19,11 +18,11 @@ const Footer = () => {
         <strong>{activeCount || 'No'}</strong> {itemWord} left
       </span>
       <ul className="filters">
-        {Object.keys(FILTER_TITLES).map(filter =>
-          <li key={filter}>
-            <FilterLink filter={filter}>
-              {FILTER_TITLES[filter]}
-            </FilterLink>
+        {Object.keys(FILTER_TITLES).map(linkFilter =>
+          <li key={linkFilter}>
+            <Link filter={linkFilter} active={visibilityFilter === linkFilter}>
+              {FILTER_TITLES[linkFilter]}
+            </Link>
           </li>
         )}
       </ul>
@@ -31,18 +30,11 @@ const Footer = () => {
         !!completedCount &&
         <button
           className="clear-completed"
-          onClick={onClearCompleted}
+          onClick={clearCompleted}
         >Clear completed</button>
 
       }
     </footer>
   )
 }
-
-Footer.propTypes = {
-  completedCount: PropTypes.number.isRequired,
-  activeCount: PropTypes.number.isRequired,
-  onClearCompleted: PropTypes.func.isRequired,
-}
-
 export default Footer

@@ -4,7 +4,7 @@ import {todoThunks} from '../thunks'
 import {createAPI} from '../redux-capi'
 
 export const todoAPI = createAPI({
-  actions: todoRedactions,
+  redactions: todoRedactions,
   selectors: todoSelectors,
   thunks: todoThunks
 })

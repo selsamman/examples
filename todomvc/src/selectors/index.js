@@ -1,28 +1,38 @@
 import { SHOW_ALL, SHOW_COMPLETED, SHOW_ACTIVE } from '../constants/TodoFilters'
 export const todoSelectors = {
 
-  todos: ({}, state) => state.todos,
+  todos: (state) => state.todos,
 
-  todo: ({id, todos}) => todos.filter(t => t.id == id),
+  visibilityFilter: (state) => state.visibilityFilter,
 
-  visibilityFilter: ({}, state) => state.visibilityFilter,
+  todo: [
+    (select, api) => select(api.id, api.todos),
+    (id, todos) => todos.find(t => t.id === id)
+  ],
 
-  visibleTodos: ({visibilityFilter, todos}) => {
-    switch (visibilityFilter) {
-        case SHOW_ALL:
-          return todos
-        case SHOW_COMPLETED:
-          return todos.filter(t => t.completed)
-        case SHOW_ACTIVE:
-          return todos.filter(t => !t.completed)
-        default:
-          throw new Error('Unknown filter: ' + visibilityFilter)
-      }
-  },
+  filteredTodos: [
+    (select, api) => select(api.visibilityFilter, api.todos),
+    (visibilityFilter, todos) => {
+      switch (visibilityFilter) {
+          case SHOW_ALL:
+            return todos
+          case SHOW_COMPLETED:
+            return todos.filter(t => t.completed)
+          case SHOW_ACTIVE:
+            return todos.filter(t => !t.completed)
+          default:
+            throw new Error('Unknown filter: ' + visibilityFilter)
+        }
+    }],
+  completedCount: [
+    (select, api) => select(api.todos),
+    (todos) => todos.reduce((count, todo) => count + (todo.completed ? 1 : 0), 0)
+  ],
 
-  completedTodoCount: ({todos}) =>
-    todos.reduce((count, todo) =>
-        todo.completed ? count + 1 : count,
-      0
-    ),
+  todosCount: [
+    (select, api) => select(api.todos),
+    (todos) => todos.reduce((count, todo) => count + 1, 0)
+  ],
+
+  activeCount: (state, api) => (api.todosCount - api.completedCount),
 }

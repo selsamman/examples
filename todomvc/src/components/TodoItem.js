@@ -1,5 +1,4 @@
-import React, { Component, useState } from 'react'
-import PropTypes from 'prop-types'
+import React, { useState } from 'react'
 import classnames from 'classnames'
 import TodoTextInput from './TodoTextInput'
 import { todoAPI } from '../api'
@@ -17,12 +16,12 @@ export default ({id}) => {
       completed: todo.completed,
       editing: editing
       })}>
-      editing ? (
+      {editing ?
         <TodoTextInput text={todo.text}
-                      editing={this.state.editing}
+                      editing={editing}
                       onSave={(text) => {updateTodo(text); disableEditing()}}
         />
-       ) : (
+        :
         <div className="view">
           <input className="toggle"
                  type="checkbox"
@@ -34,7 +33,7 @@ export default ({id}) => {
            <button className="destroy"
                    onClick={deleteTodo} />
         </div>
-      )
+      }
     </li>
   )
 }

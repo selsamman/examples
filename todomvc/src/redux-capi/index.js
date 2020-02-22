@@ -20,25 +20,42 @@ export const createAPI = ({selectors, thunks, redactions}) => {
   // Prepare return value which is the api itself which is called to create a component instance of the api
   const api =  (contextProps, componentInstance) => {
     let context;
+    // We have two modes of operastion depending on whethe classes or functions are used for the component
     if (!componentInstance) {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       let contextContainer = useRef(null);
-      if (contextContainer.current)
+      if (contextContainer.current) {
+        // Restore context from reference
         context = contextContainer.current;
-      else {
-        context.current = context = Object.create(apiContext);
+        context.__render_count__++; // We don't have a true render count so use calls to api as proxy
+      } else {
+        // Create a new context for this instance of the api's use in a component.
+        contextContainer.current = context = Object.create(apiContext);
+        // Since selectors depend on "this" we bind them so they can be called as simple functions
         bindFunctions(context);
+        context.__render_count__ = 0;
       }
+      // Set up a set state function that can trigger a render by modifying the state
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const [, setSeq] = useState(1);
+      context.__force_render__ = () => setSeq(context.__render_count__);
     } else {
-      if (componentInstance.__capi_instance__)
+      if (componentInstance.__capi_instance__) {
+        // retrieve context from a component property
         context = componentInstance.__capi_instance__;
-      else {
+        context.__render_count__++;
+      } else {
+        // Create a new context for this instance of the api's use in a component.
         componentInstance.__capi_instance__ = context = Object.create(apiContext);
+        // setup a function to force a render by modifying the state
+        context.__render_count__ = 0;
+        context.__force_render__ = () => componentInstance.setState({__render_count__: context.__render_count__});
+        // Since selectors depend on "this" we bind them so they can be called as simple functions
         bindFunctions(context);
       }
     }
+    Object.assign(context, contextProps ? contextProps : {});
     context.__selector_used__ = {};
-    context.__component__ = componentInstance;
     return context;
   }
 
@@ -53,48 +70,58 @@ export const createAPI = ({selectors, thunks, redactions}) => {
 
   // Utility functions that use apiContext in their closures
 
-  function processSelector (prop, selector) {
-
-    const selectorFunction = selector.length > 1 ? selector: selectorMemo(prop, selector);
-    Object.defineProperty(apiContext, prop, {get: function () {
-        const value = selectorFunction.call(null, this.__context__, this.__store__.getState());
-        selectorReferenced(this, prop, value);
-        return value;
-    }});
+  function processSelector (prop, selectorDef) {
+    if (selectorDef instanceof  Array) {
+      // For array definition of selector we capture and momize the selector
+      let memoizedSelector = memoize(selectorDef[1]);
+      let memoizedInvoker = selectorDef[0];
+      // Create a getter that will invoke the invoker function and track the ref
+      Object.defineProperty(apiContext, prop, {get: function () {
+          const value = memoizedInvoker.call(null, memoizedSelector, this);
+          selectorReferenced(this, prop, value);
+          return value;
+        }});
+    } else
+      // For a simple selector create a getter that just invokes the selector
+      Object.defineProperty(apiContext, prop, {get: function () {
+          const value = selectorDef.call(null, this.__store__.getState(), this);
+          selectorReferenced(this, prop, value);
+          return value;
+      }});
 
     function selectorReferenced (apiInstance, prop, value) {
       apiInstance.__selector_used__[prop] = value;
       if (!apiInstance.__store_state_subscription__)
         apiInstance.__store_state_subscription__ = apiInstance.__store__.subscribe(() => {
+          console.log(JSON.stringify(apiInstance.__store__.getState()));
           for (let selectorProp in apiInstance.__selector_used__)
-            if (apiInstance[selectorProp] !== apiInstance.__selector_used__[prop])
+            if (apiInstance[selectorProp] !== apiInstance.__selector_used__[prop]) {
               forceRender(apiInstance);
+              return;
+            }
         });
     }
 
     function forceRender (apiInstance) {
-      if (apiInstance)
-        apiInstance.setState({__redux_capi_state__: apiInstance.state.__redux_capi_state__ ? apiInstance.state.__redux_capi_state___ + 1 : 1});
-      else {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const [seq, setSeq] = useState(1);
-        setSeq(seq + 1);
-      }
-      apiInstance.__store_state_subscription__();
+      apiInstance.__force_render__();
+      // Update state with latest render count
+      apiInstance.__store_state_subscription__();  // Unsubscribe
+      apiInstance.__store_state_subscription__ = undefined;
     }
 
-    function selectorMemo(prop, fn) {
-      let lastArguments = null;
+    function memoize(selector) {
+      let lastArguments = [];
       let lastResult = null;
-
-      return () => {
+      function getValue() {
         if (!firstLevelEqual(lastArguments, arguments))
-          lastResult = fn.apply(null, arguments);
-        lastArguments = arguments;
-        return lastResult;
-      }
-
+          lastResult = selector.apply(null, arguments);
+          lastArguments = arguments;
+          return lastResult;
+      };
+      return getValue;
       function firstLevelEqual(obj1, obj2) {
+        if (obj1.length !== obj2.length)
+          return false;
         for (let prop in obj1)
           if (obj1[prop] !== obj2[prop])
             return false;
@@ -170,13 +197,13 @@ export const reducer = (rootState, action) => {
 
         // Trim nulls and undefined values out of arrays if needed
         if (subAccumulator.filterArray)
-          newState = subAccumulator.newState.filter((item) => (item != null & typeof item != 'undefined'));
+          newState = subAccumulator.newState.filter((item) => (item !== null && typeof item !== 'undefined'));
         else
           newState = subAccumulator.newState;
       }
 
       // For array elements that result in undefined we want to alert the top level that a filter may be necessary
-      if (accumulator.oldState instanceof Array && typeof newState == 'undefined' || newState == null)
+      if ((accumulator.oldState instanceof Array && typeof newState === 'undefined') || newState === null)
         accumulator.filterArray = true;
 
       // If we have reducers for this slice we pass the old state to the reducers one at a time
@@ -195,14 +222,14 @@ export const reducer = (rootState, action) => {
       if (reducer.set) {
         return reducer.set.call(null, mapState(rootState), newState, context);
       } else if (reducer.append) {
-        return newState.concat(reducer.append.call(null, mapState(rootState), newState, context));
+        return newState.concat(reducer.append.call(null, mapState(rootState), context));
       } else if (reducer.insert) {
         let position = newState.length;
         if (reducer.after)
-          position = reducer.after.call(null, mapState(rootState), newState, context) + 1;
+          position = reducer.after.call(null, mapState(rootState), context) + 1;
         if (reducer.before)
-          position = Math.max(reducer.before.call(null, mapState(rootState), newState, context), 0);
-        var insertResult = reducer.insert.call(null, mapState(rootState), newState, context);
+          position = Math.max(reducer.before.call(null, mapState(rootState), context), 0);
+        var insertResult = reducer.insert.call(null, mapState(rootState), context);
         var shallowCopy = newState.slice();
         shallowCopy.splice(position, 0, insertResult);
         return shallowCopy;
@@ -289,6 +316,7 @@ function mapStateMap(rootState, stateMap) {
       } else {
         stateSlice = stateSlice[sliceComponent];
       }
+      return undefined; // Not interested in results of map
     });
     return stateSlice;
   }

@@ -1,47 +1,55 @@
+import { SHOW_ACTIVE, SHOW_COMPLETED } from '../constants/TodoFilters'
+
 export const todoRedactions = {
 
   addTodo: (text) => ({
-    todoList: {
-      append: () => ({text, completed: false}),
+    nextId: {
+      set: (state) => state.nextId +1
+    },
+    todos: {
+      append: (state) => ({text, completed: false, id: state.nextId}),
+    },
+    visibilityFilter: {
+      set: ({visibilityFilter}) => visibilityFilter === SHOW_COMPLETED ? SHOW_ACTIVE : visibilityFilter
     }
   }),
 
   deleteTodo: () => ({
-    todoList: {
-      where: (state, item, {id}) => item.id === id,
+    todos: {
+      where: (state, item, ix, {id}) => item.id === id,
       delete: true
     }
   }),
 
   editTodo: (text) => ({
-    todoList: {
-      where: (state, item, {id}) => item.id === id,
-      set: (item) => ({...item, text}),
+    todos: {
+      where: (state, item, ix, {id}) => item.id === id,
+      set: (state, item) => ({...item, text}),
     }
   }),
 
   completeTodo: () => ({
-    todoList: {
+    todos: {
       where: (state, item, ix, {id}) => item.id === id,
-      set: (item) => ({...item, completed: true}),
+      set: (state, item) => ({...item, completed: true}),
     }
   }),
 
   completeAllTodos: () => ({
-    todoList: {
+    todos: {
       where: true,
       set: (state, item) => ({...item, completed: true}),
     }
   }),
 
   clearCompleted: () => ({
-    todoList: {
-      where: (sate, item) => item.completed,
+    todos: {
+      where: (state, item) => item.completed,
       delete: true
     }
   }),
 
-  setVisibilityFilter: (filter) => ({
+  setFilter: (filter) => ({
     visibilityFilter: {
       set: () => filter,
     }

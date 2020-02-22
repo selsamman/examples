@@ -1,9 +1,9 @@
 export const todoThunks = {
-  updateTodo: (text) => ({deleteTodo, editTodo, id}) => {
+  updateTodo: ({deleteTodo, editTodo}) => (text) => {
     if (text.length === 0) {
-      deleteTodo(id)
+      deleteTodo()
     } else {
-      editTodo(id, text)
+      editTodo(text)
     }
   }
 }

@@ -1,18 +1,17 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import Footer from './Footer'
-import VisibleTodoList from '../containers/VisibleTodoList'
 import TodoItem from './TodoItem'
 import { todoAPI } from '../api'
 
 export default () => {
 
-  const {completedCount, todosCount, completeAllTodos, clearCompleted, filteredTodos} = todoAPI();
+  let api = todoAPI()
+  let {completedCount, todosCount, completeAllTodos, clearCompleted, filteredTodos} = api;
 
   return (
     <section className="main">
 
-      todosCount > 0 &&
+      {todosCount > 0 &&
         <span>
           <input
             className="toggle-all"
@@ -21,20 +20,16 @@ export default () => {
             readOnly
           />
           <label onClick={completeAllTodos}/>
-        </span>
+        </span>}
 
       <ul className="todo-list">
         {filteredTodos.map(todo =>
-          <TodoItem key={todo.id} />
+          <TodoItem id={todo.id} key={todo.id} />
         )}
       </ul>
 
-     todosCount > 0 &&
-      <Footer
-        completedCount={completedCount}
-        activeCount={todosCount - completedCount}
-        onClearCompleted={clearCompleted}
-      />
+      {todosCount > 0 &&
+        <Footer />}
 
     </section>
   )
