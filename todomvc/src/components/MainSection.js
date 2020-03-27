@@ -3,10 +3,9 @@ import Footer from './Footer'
 import TodoItem from './TodoItem'
 import { todoAPI } from '../api'
 
-export default () => {
+const MainSection = () => {
 
-  let api = todoAPI()
-  let {completedCount, todosCount, completeAllTodos, clearCompleted, filteredTodos} = api;
+  let {completedCount, todosCount, completeAllTodos, filteredTodos} = todoAPI();
 
   return (
     <section className="main">
@@ -34,3 +33,4 @@ export default () => {
     </section>
   )
 }
+export default MainSection;

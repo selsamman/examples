@@ -1,26 +1,17 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import Todo from './Todo'
+import {todoAPI} from "../api";
 
-const TodoList = ({ todos, toggleTodo }) => (
-  <ul>
-    {todos.map(todo =>
-      <Todo
-        key={todo.id}
-        {...todo}
-        onClick={() => toggleTodo(todo.id)}
-      />
-    )}
-  </ul>
-)
-
-TodoList.propTypes = {
-  todos: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    completed: PropTypes.bool.isRequired,
-    text: PropTypes.string.isRequired
-  }).isRequired).isRequired,
-  toggleTodo: PropTypes.func.isRequired
+const TodoList = () => {
+  const { filteredTodos } = todoAPI();
+  return (
+    <ul>
+      {filteredTodos.map(todo =>
+        <Todo
+          key={todo.id} id={todo.id}
+        />
+      )}
+    </ul>
+  )
 }
-
 export default TodoList

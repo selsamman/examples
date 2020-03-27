@@ -5,5 +5,8 @@ export const todoThunks = {
     } else {
       editTodo(text)
     }
+  },
+  completeAllTodos: ({completedCount, todosCount, setCompleteOnAllTodos}) => () => {
+    setCompleteOnAllTodos(completedCount !== todosCount)
   }
 }

@@ -1,15 +1,13 @@
 import React from 'react'
 import { render } from 'react-dom'
 import { createStore } from 'redux'
-import { Provider } from 'react-redux'
+import { reducer } from 'redux-capi'
 import App from './components/App'
-import rootReducer from './reducers'
+import {todoAPI, VisibilityFilters} from './api'
 
-const store = createStore(rootReducer)
-
+const store = createStore(reducer, {todos: [], visibilityFilter: VisibilityFilters.SHOW_ALL, nextId: 0})
+todoAPI.mount(store);
 render(
-  <Provider store={store}>
-    <App />
-  </Provider>,
+  <App />,
   document.getElementById('root')
 )

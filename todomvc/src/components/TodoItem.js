@@ -3,13 +3,13 @@ import classnames from 'classnames'
 import TodoTextInput from './TodoTextInput'
 import { todoAPI } from '../api'
 
-export default ({id}) => {
+const TodoItem = ({id}) => {
 
   const [editing, setEditing] = useState(false);
   const enableEditing = () => setEditing(true);
   const disableEditing = () => setEditing(false);
 
-  const { todo, completeTodo, deleteTodo, updateTodo } = todoAPI({id: id});
+  const { todo, completeTodo, deleteTodo, updateTodo } = todoAPI({id: id, name: 'TodoItem'});
 
   return (
     <li className={classnames({
@@ -37,3 +37,4 @@ export default ({id}) => {
     </li>
   )
 }
+export default TodoItem;

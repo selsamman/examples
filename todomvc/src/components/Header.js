@@ -3,7 +3,7 @@ import TodoTextInput from './TodoTextInput'
 import { todoAPI } from '../api'
 
 const Header = () => {
-  let api = todoAPI();
+  let api = todoAPI({name: 'Header'});
   let {addTodo} = api;
   console.log("render header");
   return (

@@ -4,7 +4,7 @@ import classnames from 'classnames'
 import { todoAPI } from '../api'
 
 const Link = ({ active, children, filter }) => {
-  const {setFilter} = todoAPI();
+  const {setFilter} = todoAPI({name: 'Link'});
   return (
     // eslint-disable-next-line jsx-a11y/anchor-is-valid
     <a

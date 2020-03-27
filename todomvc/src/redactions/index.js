@@ -24,21 +24,21 @@ export const todoRedactions = {
   editTodo: (text) => ({
     todos: {
       where: (state, item, ix, {id}) => item.id === id,
-      set: (state, item) => ({...item, text}),
+      assign: () => ({text}),
     }
   }),
 
   completeTodo: () => ({
     todos: {
       where: (state, item, ix, {id}) => item.id === id,
-      set: (state, item) => ({...item, completed: true}),
+      assign: () => ({completed: true}),
     }
   }),
 
-  completeAllTodos: () => ({
+  setCompleteOnAllTodos: (completeValue) => ({
     todos: {
-      where: true,
-      set: (state, item) => ({...item, completed: true}),
+      where: (state, todo) => todo.completed !== completeValue,
+      assign: () => ({completed: completeValue}),
     }
   }),
 

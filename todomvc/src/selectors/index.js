@@ -6,12 +6,12 @@ export const todoSelectors = {
   visibilityFilter: (state) => state.visibilityFilter,
 
   todo: [
-    (select, api) => select(api.id, api.todos),
+    (select, {id, todos}) => select(id, todos),
     (id, todos) => todos.find(t => t.id === id)
   ],
 
   filteredTodos: [
-    (select, api) => select(api.visibilityFilter, api.todos),
+    (select, {visibilityFilter, todos}) => select(visibilityFilter, todos),
     (visibilityFilter, todos) => {
       switch (visibilityFilter) {
           case SHOW_ALL:
@@ -23,7 +23,8 @@ export const todoSelectors = {
           default:
             throw new Error('Unknown filter: ' + visibilityFilter)
         }
-    }],
+    }
+  ],
   completedCount: [
     (select, api) => select(api.todos),
     (todos) => todos.reduce((count, todo) => count + (todo.completed ? 1 : 0), 0)

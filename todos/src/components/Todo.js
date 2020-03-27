@@ -1,21 +1,17 @@
 import React from 'react'
-import PropTypes from 'prop-types'
+import {todoAPI} from "../api";
 
-const Todo = ({ onClick, completed, text }) => (
-  <li
-    onClick={onClick}
-    style={{
-      textDecoration: completed ? 'line-through' : 'none'
-    }}
-  >
-    {text}
-  </li>
-)
-
-Todo.propTypes = {
-  onClick: PropTypes.func.isRequired,
-  completed: PropTypes.bool.isRequired,
-  text: PropTypes.string.isRequired
+const Todo = ({ id }) => {
+    const {toggleTodo, todo } = todoAPI({id: id});
+    return (
+      <li
+        onClick={toggleTodo}
+        style={{
+          textDecoration: todo.completed ? 'line-through' : 'none'
+        }}
+      >
+        {todo.text}
+      </li>
+    )
 }
-
 export default Todo

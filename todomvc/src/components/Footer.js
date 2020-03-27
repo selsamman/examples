@@ -10,7 +10,7 @@ const FILTER_TITLES = {
 }
 
 const Footer = () => {
-  const { activeCount, completedCount, clearCompleted, visibilityFilter } = todoAPI();
+  const { activeCount, completedCount, clearCompleted, visibilityFilter } = todoAPI({name: 'Footer'});
   const itemWord = activeCount === 1 ? 'item' : 'items'
   return (
     <footer className="footer">

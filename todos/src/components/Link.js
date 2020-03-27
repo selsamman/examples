@@ -1,22 +1,18 @@
 import React from 'react'
-import PropTypes from 'prop-types'
+import { todoAPI } from '../api'
 
-const Link = ({ active, children, onClick }) => (
-    <button
-       onClick={onClick}
-       disabled={active}
-       style={{
-           marginLeft: '4px',
-       }}
-    >
-      {children}
-    </button>
-)
-
-Link.propTypes = {
-  active: PropTypes.bool.isRequired,
-  children: PropTypes.node.isRequired,
-  onClick: PropTypes.func.isRequired
+const Link = ({ filter, children }) => {
+    const { visibilityFilter, setVisibilityFilter } = todoAPI();
+    return (
+        <button
+           onClick={() => setVisibilityFilter(filter)}
+           disabled={filter === visibilityFilter}
+           style={{
+               marginLeft: '4px',
+           }}
+        >
+          {children}
+        </button>
+    )
 }
-
 export default Link
