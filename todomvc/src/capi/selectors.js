@@ -1,4 +1,4 @@
-import { SHOW_ALL, SHOW_COMPLETED, SHOW_ACTIVE } from '../constants/TodoFilters'
+import { SHOW_ALL, SHOW_COMPLETED, SHOW_ACTIVE } from './TodoFilters'
 export const todoSelectors = {
 
   todos: (state) => state.todos,

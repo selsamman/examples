@@ -1,4 +1,4 @@
-import { SHOW_ACTIVE, SHOW_COMPLETED } from '../constants/TodoFilters'
+import { SHOW_ACTIVE, SHOW_COMPLETED } from './TodoFilters'
 
 export const todoRedactions = {
 

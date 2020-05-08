@@ -1,6 +1,6 @@
 import React from 'react'
 import TodoTextInput from './TodoTextInput'
-import { todoAPI } from '../api'
+import { todoAPI } from '../capi'
 
 const Header = () => {
   let api = todoAPI({name: 'Header'});

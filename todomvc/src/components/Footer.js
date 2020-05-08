@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from '../components/Link'
-import { SHOW_ALL, SHOW_COMPLETED, SHOW_ACTIVE } from '../constants/TodoFilters'
-import { todoAPI } from '../api'
+import { SHOW_ALL, SHOW_COMPLETED, SHOW_ACTIVE } from '../capi/TodoFilters'
+import { todoAPI } from '../capi'
 
 const FILTER_TITLES = {
   [SHOW_ALL]: 'All',
@@ -15,7 +15,7 @@ const Footer = () => {
   return (
     <footer className="footer">
       <span className="todo-count">
-        <strong>{activeCount || 'No'}</strong> {itemWord} left
+        <strong>{activeCount || 'None'}</strong> {itemWord} left
       </span>
       <ul className="filters">
         {Object.keys(FILTER_TITLES).map(linkFilter =>

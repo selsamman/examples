@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import classnames from 'classnames'
 import TodoTextInput from './TodoTextInput'
-import { todoAPI } from '../api'
+import { todoAPI } from '../capi'
 
 const TodoItem = ({id}) => {
 

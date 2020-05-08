@@ -1,7 +1,7 @@
 import React from 'react'
 import Footer from './Footer'
 import TodoItem from './TodoItem'
-import { todoAPI } from '../api'
+import { todoAPI } from '../capi'
 
 const MainSection = () => {
 
